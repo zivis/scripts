@@ -27,8 +27,6 @@ if ($#ARGV < 1 ){
 
 if ( $#ARGV == 3 ){
         $path = $ARGV[2];
-}else {
-        $path = $path;
 }
         
 my $np = Nagios::Plugin->new( shortname => "HeapMemoryUsage",);
