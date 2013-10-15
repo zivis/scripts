@@ -66,8 +66,8 @@ $code = $np->check_threshold(
         critical => $critical,
 );
 
-my $max_memory_mb=$max_memory/1000/1000;
-my $used_memory_mb=$used_memory/1000/1000;
+my $max_memory_mb=$max_memory/1024/1024;
+my $used_memory_mb=$used_memory/1024/1024;
 
 $np->add_perfdata(
         label => "HeapMemory",
