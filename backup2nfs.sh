@@ -73,10 +73,19 @@ function mount_share {
 		exit 1
 	fi
 
+	if [ ! -d $NFS_SHARE ];then
+     echo -e "given mountpoint does not exist!\ncreating $NFS_MOUNT"
+     mkdir -p $NFS_MOUNT
+     if [ $? != 0 ];then
+       echo -e "cant crete mountpoint!\naborting"
+       exit 1
+     fi
+   fi
+
 	if [ "$NFS_OPTSx" == "x"  ];then
-		MOUNTCMD="$MOUNTBIN -t cifs $NFS_SHARE $NFS_MOUNT"
+		MOUNTCMD="$MOUNTBIN -t nfs $NFS_SHARE $NFS_MOUNT"
 	else
-		MOUNTCMD="$MOUNTBIN -t cifs $NFS_SHARE $NFS_MOUNT -o $NFS_OPTS"
+		MOUNTCMD="$MOUNTBIN -t nfs $NFS_SHARE $NFS_MOUNT -o $NFS_OPTS"
 	fi
 
 	eval $MOUNTCMD
