@@ -181,7 +181,8 @@ function archive {
   TIMESTAMP=`date +%F_%H%M`
   TARGET_FILE="${BACKUP_TARGET_PATH}/${BACKUP_NAME}_$TIMESTAMP.tar.gz"
   TARCMD="$TARBIN -czvf $TARGET_FILE -C ${LVM_LV_SNAPSHOT_MOUNT} ."
-  eval $TARCMD > /dev/null
+  echo -e "now tarzipping to ${BACKUP_TARGET_PATH}/${BACKUP_NAME}_$TIMESTAMP.tar.gz …\n"
+	eval $TARCMD > /dev/null
   if [ $? -eq 0 ];then
     echo "succesfully created $TARGET_FILE"
     ARCHIVE_RESULT='SUCCESS'
