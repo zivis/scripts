@@ -23,7 +23,7 @@ SNAPSHOT_CHECK=1
 MOUNT_CHECK=1
 
 function print_usage {
-	echo -e "Usage:\n\n$0 -V <volumegroup> -L <logicalvolume> -P <backup-targetpath> [-n <backupname>]\n"
+	echo -e "Usage:\n\n$0 -V <volumegroup> -L <logicalvolume> -P <backup-targetpath> [-n <backupname>] [-S <parentdir of snapshotmount>]\n"
 }
 
 function check_vg {
@@ -175,7 +175,7 @@ function cleanup {
 }
 
 
-while getopts ":hV:L:P:n:" opt; do
+while getopts ":hV:L:P:S:n:" opt; do
 	case $opt in
 		V)
 			LVM_VG=$OPTARG
@@ -193,6 +193,9 @@ while getopts ":hV:L:P:n:" opt; do
 		P)
 			#TARGET_PATH="$NFS_MOUNT/zivi_backup_test"
 			BACKUP_TARGET_PATH=$OPTARG
+		;;
+		S)
+			LVM_LV_SNAPSHOT_PATH=$OPTARG
 		;;
 		\?)
 			echo -e "invalid option given\naborting"
@@ -217,8 +220,12 @@ if [ -z $BACKUP_NAME ]; then
 	BACKUP_NAME="${LVM_VG}_${LVM_LV}"
 fi
 
+if [ ! $LVM_LV_SNAPSHOT_PATH ];then
+	LVM_LV_SNAPSHOT_PATH="/mnt/lvmsnapshots/"
+fi
+
 LVM_LV_SNAPSHOT_NAME="${LVM_LV}-backup"
-LVM_LV_SNAPSHOT_MOUNT="/mnt/lvmsnapshots/${LVM_LV_SNAPSHOT_NAME}"
+LVM_LV_SNAPSHOT_MOUNT="${LVM_LV_SNAPSHOT_PATH}/${LVM_LV_SNAPSHOT_NAME}"
 
 check_vg
 check_lv
