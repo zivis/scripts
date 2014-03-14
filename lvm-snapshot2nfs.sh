@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ ${#@} -lt 3 ];then
+if [ ${#@} -lt 4 ];then
 	echo "too few arguments given\naborting…"
 	exit 1
 fi 
@@ -22,6 +22,15 @@ while getopts "V:L:n:" opt; do
 		;;
 	esac
 done
+
+if [ -z $LVM_VG ] || [ -z $LVM_LV ]; then
+	echo "-V <Volumegroup> and -L <Logicalvolume> are mandatory\naborting…"
+	exit 1
+fi
+
+if [ -z $BACKUP_NAME ]; then
+	BACKUP_NAME="${LVM_VG}_${LVM_LV}"
+fi
 
 LVM_LV_SNAPSHOT_NAME="${LVM_LV}-backup"
 LVM_LV_SNAPSHOT_SIZE="5" # IN GB
