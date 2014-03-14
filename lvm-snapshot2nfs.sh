@@ -1,11 +1,6 @@
 #!/bin/bash
 
-if [ ${#@} -lt 4 ];then
-	echo "too few arguments given\naborting…"
-	exit 1
-fi 
-
-while getopts "V:L:n:" opt; do
+while getopts "V:L:P:n:h" opt; do
 	case $opt in
 		V)
 			LVM_VG=$OPTARG
@@ -16,15 +11,29 @@ while getopts "V:L:n:" opt; do
 		n)
 			BACKUP_NAME=$OPTARG
 		;;
+		h)
+			print_usage
+			exit 0
+		;;
+		P)
+			#TARGET_PATH="$NFS_MOUNT/zivi_backup_test"
+			BACKUP_TARGET_PATH=$OPTARG
+		;;
 		\?)
 			echo -e "invalid option given\naborting"
+			print_usage
+			exit 1
+		;;
+		:) 
+			echo -e "-$OPTARG requires an argument"
+			print_usage
 			exit 1
 		;;
 	esac
 done
 
-if [ -z $LVM_VG ] || [ -z $LVM_LV ]; then
-	echo "-V <Volumegroup> and -L <Logicalvolume> are mandatory\naborting…"
+if [ -z $LVM_VG ] || [ -z $LVM_LV ] || [ -z $BACKUP_TARGET_PATH ]; then
+	echo "-V <Volumegroup> and -L <Logicalvolume> and -P <backup-targetpath> are mandatory\naborting…"
 	exit 1
 fi
 
@@ -43,8 +52,6 @@ NFS_SHARE='192.168.0.1:/share'
 NFS_OPTS='' #can be blank
 #directory to store the backup archives should start with $NFS_MOUNT/ if USE_NFS_TARGET is set to 0
 
-#TARGET_PATH="$NFS_MOUNT/zivi_backup_test"
-BACKUP_TARGET_PATH="/mnt/backuptest"
 #delete backups name_*.tar.gz older than
 BACKUP_MAX_AGE='2 weeks ago' #1 month ago 
 
@@ -56,6 +63,10 @@ VG_CHECK=1
 LV_CHECK=1
 SNAPSHOT_CHECK=1
 MOUNT_CHECK=1
+
+function print_usage {
+	echo -e "Usage:\n\n$0 -V <volumegroup> -L <logicalvolume> [-n <backupname>]\n"
+}
 
 function check_vg {
 	/sbin/vgdisplay $LVM_VG > /dev/null
