@@ -36,8 +36,6 @@ NFS_OPTS='' #can be blank
 
 #TARGET_PATH="$NFS_MOUNT/zivi_backup_test"
 BACKUP_TARGET_PATH="/mnt/backuptest"
-#name of the archive: name_timestamp.tar.gz
-BACKUP_NAME='testbackup'
 #delete backups name_*.tar.gz older than
 BACKUP_MAX_AGE='2 weeks ago' #1 month ago 
 
