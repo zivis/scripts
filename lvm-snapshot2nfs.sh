@@ -1,49 +1,7 @@
 #!/bin/bash
 
-while getopts "V:L:P:n:h" opt; do
-	case $opt in
-		V)
-			LVM_VG=$OPTARG
-		;;
-		L)
-			LVM_LV=$OPTARG
-		;;
-		n)
-			BACKUP_NAME=$OPTARG
-		;;
-		h)
-			print_usage
-			exit 0
-		;;
-		P)
-			#TARGET_PATH="$NFS_MOUNT/zivi_backup_test"
-			BACKUP_TARGET_PATH=$OPTARG
-		;;
-		\?)
-			echo -e "invalid option given\naborting"
-			print_usage
-			exit 1
-		;;
-		:) 
-			echo -e "-$OPTARG requires an argument"
-			print_usage
-			exit 1
-		;;
-	esac
-done
-
-if [ -z $LVM_VG ] || [ -z $LVM_LV ] || [ -z $BACKUP_TARGET_PATH ]; then
-	echo "-V <Volumegroup> and -L <Logicalvolume> and -P <backup-targetpath> are mandatory\naborting…"
-	exit 1
-fi
-
-if [ -z $BACKUP_NAME ]; then
-	BACKUP_NAME="${LVM_VG}_${LVM_LV}"
-fi
-
-LVM_LV_SNAPSHOT_NAME="${LVM_LV}-backup"
 LVM_LV_SNAPSHOT_SIZE="5" # IN GB
-LVM_LV_SNAPSHOT_MOUNT="/mnt/lvmsnapshots/${LVM_LV_SNAPSHOT_NAME}"
+#LVM_LV_SNAPSHOT_MOUNT="/mnt/lvmsnapshots/${LVM_LV_SNAPSHOT_NAME}"
 
 USE_NFS_TARGET=1 #0 use NFS-target, 1 dont use NFS-target
 #share-specific options
@@ -65,7 +23,7 @@ SNAPSHOT_CHECK=1
 MOUNT_CHECK=1
 
 function print_usage {
-	echo -e "Usage:\n\n$0 -V <volumegroup> -L <logicalvolume> [-n <backupname>]\n"
+	echo -e "Usage:\n\n$0 -V <volumegroup> -L <logicalvolume> -P <backup-targetpath> [-n <backupname>]\n"
 }
 
 function check_vg {
@@ -216,6 +174,52 @@ function cleanup {
   rm $BACKUP_TARGET_PATH/date_marker
 }
 
+
+while getopts ":hV:L:P:n:" opt; do
+	case $opt in
+		V)
+			LVM_VG=$OPTARG
+		;;
+		L)
+			LVM_LV=$OPTARG
+		;;
+		n)
+			BACKUP_NAME=$OPTARG
+		;;
+		h)
+			print_usage
+			exit 0
+		;;
+		P)
+			#TARGET_PATH="$NFS_MOUNT/zivi_backup_test"
+			BACKUP_TARGET_PATH=$OPTARG
+		;;
+		\?)
+			echo -e "invalid option given\naborting"
+			print_usage
+			exit 1
+		;;
+		:) 
+			echo -e "-$OPTARG requires an argument"
+			print_usage
+			exit 1
+		;;
+	esac
+done
+
+if [ ! $LVM_VG ] || [ ! $LVM_LV ] || [ ! $BACKUP_TARGET_PATH ] ; then
+	echo -e "-V <Volumegroup> and -L <Logicalvolume> and -P <backup-targetpath> are mandatory\naborting…"
+	print_usage
+	exit 1
+fi
+
+if [ -z $BACKUP_NAME ]; then
+	BACKUP_NAME="${LVM_VG}_${LVM_LV}"
+fi
+
+LVM_LV_SNAPSHOT_NAME="${LVM_LV}-backup"
+LVM_LV_SNAPSHOT_MOUNT="/mnt/lvmsnapshots/${LVM_LV_SNAPSHOT_NAME}"
+
 check_vg
 check_lv
 check_for_snapshot
@@ -249,7 +253,6 @@ fi
 create_snapshot
 mount_snapshot
 archive
-#echo -e "VG_CHECK: ${VG_CHECK}\nLV_CHECK: ${LV_CHECK}\nSNAPSHOT_CHECK: ${SNAPSHOT_CHECK}\nMOUNT_CHECK: ${MOUNT_CHECK}"
 if [ $ARCHIVE_RESULT == 'FAIL' ];then
   echo -e "backup creation failed!\ncleaning up"
   umount_snapshot
