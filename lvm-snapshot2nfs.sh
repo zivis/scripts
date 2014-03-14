@@ -5,13 +5,16 @@ if [ ${#@} -lt 3 ];then
 	exit 1
 fi 
 
-while getopts "V:L:" opt; do
+while getopts "V:L:n:" opt; do
 	case $opt in
 		V)
 			LVM_VG=$OPTARG
 		;;
 		L)
 			LVM_LV=$OPTARG
+		;;
+		n)
+			BACKUP_NAME=$OPTARG
 		;;
 		\?)
 			echo -e "invalid option given\naborting"
