@@ -1,7 +1,25 @@
 #!/bin/bash
 
-LVM_VG="zivi"
-LVM_LV="root"
+if [ ${#@} -lt 3 ];then
+	echo "too few arguments given\naborting…"
+	exit 1
+fi 
+
+while getopts "V:L:" opt; do
+	case $opt in
+		V)
+			LVM_VG=$OPTARG
+		;;
+		L)
+			LVM_LV=$OPTARG
+		;;
+		\?)
+			echo -e "invalid option given\naborting"
+			exit 1
+		;;
+	esac
+done
+
 LVM_LV_SNAPSHOT_NAME="${LVM_LV}-backup"
 LVM_LV_SNAPSHOT_SIZE="5" # IN GB
 LVM_LV_SNAPSHOT_MOUNT="/mnt/lvmsnapshots/${LVM_LV_SNAPSHOT_NAME}"
